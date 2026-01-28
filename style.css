@@ -1,0 +1,299 @@
+/* 
+   Montelukast Risk Assessment - Premium Medical Theme 
+   Glassmorphism + Modern Gradient Aesthetics
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #06b6d4;
+    --accent-color: #f43f5e;
+    --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #cbebff 100%);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --risk-low: #10b981;
+    --risk-mod: #f59e0b;
+    --risk-high: #ef4444;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+    overflow: hidden;
+}
+
+@media (max-width: 900px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Header */
+.header {
+    grid-column: 1 / -1;
+    padding: 2rem 2.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Main Content (Inputs) */
+.main-content {
+    padding: 0 2.5rem 2.5rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+section {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    transition: transform 0.2s ease;
+}
+
+section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+}
+
+h2 {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+select,
+input[type="number"],
+.duration-control input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    font-family: inherit;
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.2s;
+}
+
+select:focus,
+input[type="number"]:focus,
+.duration-control input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.radio-group {
+    display: flex;
+    gap: 1rem;
+}
+
+.radio-group label {
+    flex: 1;
+    background: white;
+    padding: 0.75rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.radio-group input[type="radio"] {
+    display: none;
+}
+
+.radio-group input[type="radio"]:checked+label {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Symptoms Grid */
+.symptoms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.75rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.symptom-item {
+    position: relative;
+}
+
+.symptom-item input[type="checkbox"] {
+    display: none;
+}
+
+.symptom-item label {
+    display: block;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    line-height: 1.2;
+}
+
+/* High Severity Style */
+.symptom-item.high-risk label {
+    border-left: 4px solid var(--risk-high);
+}
+
+.symptom-item input:checked+label {
+    background: #eff6ff;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.symptom-item.high-risk input:checked+label {
+    background: #fef2f2;
+    border-color: var(--risk-high);
+    color: var(--risk-high);
+}
+
+/* Sidebar (Results) */
+.sidebar {
+    background: white;
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.risk-circle-container {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin-bottom: 2rem;
+}
+
+/* SVG Circle Animation */
+.risk-circle {
+    transform: rotate(-90deg);
+    transition: stroke-dashoffset 1s ease-in-out;
+}
+
+.risk-percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.risk-label {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    transition: all 0.3s;
+}
+
+.risk-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* Toggle Removed, replaced with Select styling which is already shared */
+
+
+/* Dynamic Colors */
+.status-low {
+    color: var(--risk-low);
+}
+
+.status-mod {
+    color: var(--risk-mod);
+}
+
+.status-high {
+    color: var(--risk-high);
+}
+
+.bg-low {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.bg-mod {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.bg-high {
+    background: #fee2e2;
+    color: #b91c1c;
+}
