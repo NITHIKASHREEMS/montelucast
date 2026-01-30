@@ -21,41 +21,118 @@
         <!-- INPUTS -->
         <main class="main-content">
 
-            <!-- Demographics & Therapy -->
+            <!-- Patient Profile -->
             <section>
-                <h2>1. Patient & Therapy Profile</h2>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
-
+                <h2>1. Patient Details</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
                     <div class="form-group">
                         <label>Patient Age (Years)</label>
                         <input type="number" id="ageInput" min="1" max="18" value="8" placeholder="Enter Age">
                     </div>
 
                     <div class="form-group">
+                        <label>Gender</label>
+                        <select id="genderInput">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Height (cm)</label>
+                        <input type="number" id="heightInput" placeholder="cm">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="weightInput" placeholder="kg">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Therapy Profile -->
+            <section style="margin-top: 1.5rem;">
+                <h2>2. Therapy Profile</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+
+                    <div class="form-group">
+                        <label>Brand Name</label>
+                        <select id="brandInput">
+                            <option value="Singulair">Singulair</option>
+                            <option value="Montecare">Montecare</option>
+                            <option value="Onkast">Onkast</option>
+                            <option value="Kidmont">Kidmont</option>
+                            <option value="Maxleuk">Maxleuk</option>
+                            <option value="Montair">Montair</option>
+                            <option value="Leukast">Leukast</option>
+                            <option value="Montus">Montus</option>
+                            <option value="AirMont">AirMont</option>
+                            <option value="MontBest">MontBest</option>
+                            <option value="Almont">Almont</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label>Montelukast Dose</label>
                         <div class="radio-group">
                             <input type="radio" id="d4" name="dose" value="4mg">
-                            <label for="d4">4 mg</label>
-
+                            <label for="d4">4mg</label>
                             <input type="radio" id="d5" name="dose" value="5mg" checked>
-                            <label for="d5">5 mg</label>
-
+                            <label for="d5">5mg</label>
                             <input type="radio" id="d10" name="dose" value="10mg">
-                            <label for="d10">10 mg</label>
+                            <label for="d10">10mg</label>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Duration (Months)</label>
-                        <input type="number" id="durationInput" min="0" value="3" placeholder="Enter Months">
+                        <label>Frequency</label>
+                        <select id="frequencyInput">
+                            <option value="morning">Once in Morning</option>
+                            <option value="night">Once in Night</option>
+                            <option value="twice">Twice (Morning & Night)</option>
+                        </select>
                     </div>
 
+                    <div class="form-group">
+                        <label>Duration (Weeks)</label>
+                        <input type="number" id="durationInput" min="0" value="12" placeholder="Enter Weeks">
+                    </div>
+                </div>
+
+                <!-- Combination Drugs -->
+                <div style="margin-top: 1rem;">
+                    <label
+                        style="margin-bottom: 0.5rem; display: block; color: var(--text-muted); font-weight: 600; font-size: 0.9rem;">Combination
+                        Drugs</label>
+                    <div class="symptoms-grid" style="max-height: auto; overflow: visible;">
+                        <div class="symptom-item">
+                            <input type="checkbox" id="combo_levo" value="Levocetirizine" name="comboDrug">
+                            <label for="combo_levo">Levocetirizine</label>
+                        </div>
+                        <div class="symptom-item">
+                            <input type="checkbox" id="combo_cet" value="Cetirizine" name="comboDrug">
+                            <label for="combo_cet">Cetirizine</label>
+                        </div>
+                        <div class="symptom-item">
+                            <input type="checkbox" id="combo_bud" value="Budesonide" name="comboDrug">
+                            <label for="combo_bud">Budesonide inhaler</label>
+                        </div>
+                        <div class="symptom-item">
+                            <input type="checkbox" id="combo_sal" value="Salbutamol" name="comboDrug">
+                            <label for="combo_sal">Salbutamol</label>
+                        </div>
+                        <div class="symptom-item">
+                            <input type="checkbox" id="combo_fex" value="Fexofenadine" name="comboDrug">
+                            <label for="combo_fex">Fexofenadine</label>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <!-- Symptoms -->
             <section>
-                <h2>2. Neuropsychiatric Symptoms</h2>
+                <h2>3. Neuropsychiatric Symptoms</h2>
                 <div class="symptoms-grid" id="symptomsList">
                     <!-- Symptoms injected by JS -->
                 </div>
@@ -66,7 +143,7 @@
                 <div class="switch-container"
                     style="display: flex; align-items: center; justify-content: space-between;">
                     <div>
-                        <h2>3. Temporal Association</h2>
+                        <h2>4. Temporal Association</h2>
                         <p style="font-size: 0.85rem; color: #64748b;">Did symptoms start <strong>after</strong>
                             initiating Montelukast?</p>
                     </div>
