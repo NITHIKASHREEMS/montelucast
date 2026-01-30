@@ -21,11 +21,14 @@ const RiskEngine = {
         '10mg': 1.25
     },
 
-    // 3. Duration Scaling
+    // 3. Duration Scaling (Weeks based)
+    // < 4 weeks (1 month) = short
+    // 4 - 24 weeks (1-6 months) = medium
+    // > 24 weeks = long
     DURATION_MULTIPLIERS: {
-        'short': 1.0,   // < 1 month
-        'medium': 1.1,  // 1-6 months
-        'long': 1.2     // > 6 months
+        'short': 1.0,
+        'medium': 1.1,
+        'long': 1.2
     },
 
     // 4. Symptoms Database
@@ -75,20 +78,20 @@ const RiskEngine = {
         return '1-3';
     },
 
-    // Helper: Map Months to Duration Key
-    getDurationKey: function (months) {
-        if (months === '' || months === null) return 'medium';
-        if (months < 1) return 'short';
-        if (months <= 6) return 'medium';
+    // Helper: Map Weeks to Duration Key
+    getDurationKey: function (weeks) {
+        if (weeks === '' || weeks === null) return 'medium';
+        if (weeks < 4) return 'short';
+        if (weeks <= 24) return 'medium';
         return 'long';
     },
 
     /**
      * Calculate absolute risk percentage.
      */
-    calculate: function (ageInput, dose, durationInput, selectedSymptoms, temporalAssociation) {
+    calculate: function (ageInput, dose, durationWeeks, selectedSymptoms, temporalAssociation, brand, comboDrugs) {
         const ageGroup = this.getAgeGroupKey(ageInput);
-        const duration = this.getDurationKey(durationInput);
+        const duration = this.getDurationKey(durationWeeks);
 
         // 1. Establish Baseline
         let baseRisk = this.AGE_BASELINES[ageGroup] || 0.14;
@@ -132,11 +135,19 @@ const RiskEngine = {
             currentRisk *= 1.15; // +15% boost
         }
 
-        // 6. Clamping
+        // 6. SPECIAL DRUG COMBINATION RULE
+        // Brand: Almont + Combo: Levocetirizine = >95% Risk
+        let isCriticalCombo = false;
+        if (brand === 'Almont' && comboDrugs.includes('Levocetirizine')) {
+            currentRisk = 0.96; // 96%
+            isCriticalCombo = true;
+        }
+
+        // 7. Clamping
         if (currentRisk > 0.99) currentRisk = 0.99;
         if (currentRisk < 0.05) currentRisk = 0.05;
 
-        // 7. Determine Final Label
+        // 8. Determine Final Label
         let finalLabel = "Low Risk";
         if (currentRisk >= 0.70) finalLabel = "High Risk";
         else if (currentRisk >= 0.30) finalLabel = "Moderate Risk";
@@ -147,7 +158,8 @@ const RiskEngine = {
             details: {
                 base: baseRisk,
                 symptomCat: symptomRiskCategory,
-                hasHighSeverity: hasHighSeverity
+                hasHighSeverity: hasHighSeverity,
+                isCriticalCombo: isCriticalCombo
             }
         };
     }
@@ -160,8 +172,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const els = {
         ageInput: document.getElementById('ageInput'),
+        genderInput: document.getElementById('genderInput'),
+        heightInput: document.getElementById('heightInput'),
+        weightInput: document.getElementById('weightInput'),
+        brandInput: document.getElementById('brandInput'),
         doseInputs: document.getElementsByName('dose'),
+        frequencyInput: document.getElementById('frequencyInput'),
         durationInput: document.getElementById('durationInput'),
+        comboChecks: document.getElementsByName('comboDrug'),
         temporalSelect: document.getElementById('temporalSelect'),
         symptomsList: document.getElementById('symptomsList'),
         riskScore: document.getElementById('riskScore'),
@@ -175,8 +193,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // State
     const state = {
         age: 8,
+        gender: 'male',
+        height: '',
+        weight: '',
+        brand: 'Singulair',
         dose: '5mg',
-        durationMonths: 3,
+        frequency: 'morning',
+        durationWeeks: 12,
+        comboDrugs: [],
         symptoms: [],
         temporal: true
     };
@@ -209,12 +233,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update State from DOM
     function updateState() {
         state.age = parseFloat(els.ageInput.value) || 0;
-        state.durationMonths = parseFloat(els.durationInput.value);
-        if (isNaN(state.durationMonths)) state.durationMonths = 0;
+        state.gender = els.genderInput.value;
+        state.height = els.heightInput.value;
+        state.weight = els.weightInput.value;
+        state.brand = els.brandInput.value;
+        state.frequency = els.frequencyInput.value;
+
+        state.durationWeeks = parseFloat(els.durationInput.value);
+        if (isNaN(state.durationWeeks)) state.durationWeeks = 0;
 
         // Radio buttons for dose
         els.doseInputs.forEach(radio => {
             if (radio.checked) state.dose = radio.value;
+        });
+
+        // Combination Drugs
+        state.comboDrugs = [];
+        els.comboChecks.forEach(cb => {
+            if (cb.checked) state.comboDrugs.push(cb.value);
         });
 
         // Temporal
@@ -231,9 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = RiskEngine.calculate(
             state.age,
             state.dose,
-            state.durationMonths,
+            state.durationWeeks,
             state.symptoms,
-            state.temporal
+            state.temporal,
+            state.brand,
+            state.comboDrugs
         );
 
         // Animate Counter
@@ -264,11 +302,18 @@ document.addEventListener('DOMContentLoaded', () => {
         els.riskLabel.textContent = result.label;
 
         // Update Explanation
-        els.riskExplanation.innerHTML = `
+        let explanationHTML = `
             <strong>${result.percentage}% Probability</strong><br>
             Base Risk (Age): ${Math.round(result.details.base * 100)}%<br>
-            ${result.details.symptomCat === 'High (Severity)' ? '<span style="color:var(--risk-high)">High Severity Symptom Detected</span>' : `Symptom Load: ${result.details.symptomCat}`}
         `;
+
+        if (result.details.isCriticalCombo) {
+            explanationHTML += `<span style="color:var(--risk-high); font-weight:bold;">CRITICAL: High Risk Combination (Almont + Levocetirizine)</span>`;
+        } else {
+            explanationHTML += `${result.details.symptomCat === 'High (Severity)' ? '<span style="color:var(--risk-high)">High Severity Symptom Detected</span>' : `Symptom Load: ${result.details.symptomCat}`}`;
+        }
+
+        els.riskExplanation.innerHTML = explanationHTML;
 
         // Summary Inputs
         els.summaryCount.textContent = state.symptoms.length;
@@ -293,9 +338,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listeners for Inputs
     els.ageInput.addEventListener('input', updateState);
+    els.genderInput.addEventListener('change', updateState);
+    els.heightInput.addEventListener('input', updateState);
+    els.weightInput.addEventListener('input', updateState);
+    els.brandInput.addEventListener('change', updateState);
+    els.frequencyInput.addEventListener('change', updateState);
     els.durationInput.addEventListener('input', updateState);
     els.temporalSelect.addEventListener('change', updateState);
     els.doseInputs.forEach(input => input.addEventListener('change', updateState));
+    els.comboChecks.forEach(input => input.addEventListener('change', updateState));
 
     // Initial Run
     renderSymptoms();
